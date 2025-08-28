@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  labels:
+    app: node-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      containers:
+      - name: node-container
+        image: node:18-alpine
+        command: ["node", "-e", "require('http').createServer((req,res)=>res.end('Hello from Node app!')).listen(3000)"]
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: "<POSTGRES_FQDN>"
+        - name: DB_USER
+          value: "<POSTGRES_ADMIN>"
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
